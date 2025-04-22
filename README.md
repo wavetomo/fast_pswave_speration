@@ -1,6 +1,5 @@
 # fast_pswave_speration
-1. The main program is
-wavefront_phase_space_wavenumber_wavefield_decomposition 
+1. The main program is wavefront_phase_space_wavenumber_wavefield_decomposition 
 note：The program gives three examples, such as selecting example 1 for wavefield decomposition, 
 you need to comment out the parameter reading of other examples, and then run the program to get the result.
 
