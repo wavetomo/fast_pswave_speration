@@ -1,0 +1,78 @@
+function out=derivate2_fd8(in,direction,interval)
+% the 8th order accuracy finite difference to calculate the second derivative
+% input parameters:
+% 		in: input 2D array
+% 		out: out 2D array
+% 		direction: the direction for calculating directive, =2: calculate derivative along x (horizontal);
+%                   =1 : calcualte derivative along z (vertical)
+% 		interval: the interval of the calculation direction
+% return:
+%       out: out 2D array
+% 		¡¾NB: make sure the input pointer, in and out, are independent, otherwise the vectorization may produce wrong result¡¿
+% 		¡¾NB: this function has been tested regorously¡¿
+
+% 	// C80=-2.97399944*inv_interval1;//zhang's optimized coefficient
+% 	// C81=1.70507669*inv_interval1;
+% 	// C82=-0.25861812*inv_interval1;
+% 	// C83=0.04577745*inv_interval1;
+% 	// C84=-0.00523630*inv_interval1;
+inv_interval1=1/(interval*interval);
+
+C80=-2.971318010323095*inv_interval1;%my optimized coefficient
+C81=1.702759426473053*inv_interval1;
+C82=-0.257155349481868*inv_interval1;
+C83=0.045148818849532*inv_interval1;
+C84=-0.005093890679511*inv_interval1;	
+
+% // C80=-2.847222222222222*inv_interval1;// classic coefficient
+% // C81=1.6*inv_interval1;
+% // C82=-0.2*inv_interval1;
+% // C83=0.025396825396825*inv_interval1;
+% // C84=-0.001785714285714*inv_interval1;	
+
+C40=-2.557367059735485*inv_interval1;
+C41=1.372211692957230*inv_interval1;
+C42=-0.093528163109984*inv_interval1;
+
+[nz,nx]=size(in);
+out=zeros(nz,nx);
+if direction==1
+    for ix=1:nx
+        out(1,ix)=0.0;
+        out(2,ix)=(in(3,ix) - 2*in(2,ix) + in(1,ix))*inv_interval1;
+        out(3,ix)=C40*in(3,ix) + C41*(in(4,ix)+in(2,ix)) + C42*(in(5,ix)+in(1,ix));
+        out(4,ix)=C40*in(4,ix) + C41*(in(5,ix)+in(3,ix)) + C42*(in(6,ix)+in(2,ix));
+        
+        for iz=5:nz-4
+            out(iz,ix)=C80*in(iz,ix) + C81*(in(iz+1,ix)+in(iz-1,ix)) + C82*(in(iz+2,ix) + in(iz-2,ix))...
+                + C83*(in(iz+3,ix) + in(iz-3,ix)) + C84*(in(iz+4,ix) + in(iz-4,ix));
+        end
+        
+        out(nz-3,ix)=C40*in(nz-3,ix) + C41*(in(nz-2,ix) + in(nz-4,ix)) + C42*(in(nz-1,ix) + in(nz-5,ix));
+        out(nz-2,ix)=C40*in(nz-2,ix) + C41*(in(nz-1,ix) + in(nz-3,ix)) + C42*(in(nz,ix)   + in(nz-4,ix));
+        
+        out(nz-1,ix)=(in(nz,ix) - 2*in(nz-1,ix) + in(nz-2,ix))*inv_interval1;
+        out(nz,ix)=0.0;
+    end
+end
+
+if direction==2
+   for iz=1:nz
+        out(iz,1)=0.0;
+        out(iz,2)=(in(iz,3) - 2*in(iz,2) + in(iz,1))*inv_interval1;
+        out(iz,3)=C40*in(iz,3) + C41*(in(iz,4)+in(iz,2)) + C42*(in(iz,5)+in(iz,1));
+        out(iz,4)=C40*in(iz,4) + C41*(in(iz,5)+in(iz,3)) + C42*(in(iz,6)+in(iz,2));
+        
+        for ix=5:nx-4
+            out(iz,ix)=C80*in(iz,ix) + C81*(in(iz,ix+1)+in(iz,ix-1)) + C82*(in(iz,ix+2) + in(iz,ix-2))...
+                + C83*(in(iz,ix+3) + in(iz,ix-3)) + C84*(in(iz,ix+4) + in(iz,ix-4));
+        end
+        
+        out(iz,nx-3)=C40*in(iz,nx-3) + C41*(in(iz,nx-2) + in(iz,nx-4)) + C42*(in(iz,nx-1) + in(iz,nx-5));
+        out(iz,nx-2)=C40*in(iz,nx-2) + C41*(in(iz,nx-1) + in(iz,nx-3)) + C42*(in(iz,nx)   + in(iz,nx-4));
+        
+        out(iz,nx-1)=(in(iz,nx) - 2*in(iz,nx-1) + in(iz,nx-2))*inv_interval1;
+        out(iz,nx)=0.0;
+    end
+end
+end
